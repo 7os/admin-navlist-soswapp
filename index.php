@@ -55,7 +55,13 @@ $query = "SELECT wp.name, wp.path, wp.access_rank, wp.access_rank_strict, wp.tit
                (
                  SELECT COUNT(*)
                  FROM :db:.path_access
-                 WHERE path_name = CONCAT('{$db->escapeValue($params['group'])}','/')
+                 WHERE path_name = (
+                    SELECT `name`
+                    FROM :db:.work_path
+                    WHERE `domain` = 'project-admin'
+                    AND `path` = '/'
+                    LIMIT 1
+                 )
                  AND user = '{$db->escapeValue($user)}'
                ) > 0
              )
@@ -74,7 +80,7 @@ if ($found_nav) {
       "link" => WHOST . $nav->domain_path . $nav->path,
       "onclick" => (!empty($nav->onclick) ? $nav->onclick : ''),
       "icon" => (!empty($nav->icon) ? \html_entity_decode($nav->icon) : ""),
-      "name" => $nav->name,
+      "name" => $nav->domain_path . $nav->path,
       "classname" => (!empty($nav->classname) ? $nav->classname : '')
     ];
   }
